@@ -1,0 +1,4 @@
+/snap/clion/310/bin/cmake/linux/x64/bin/cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_MAKE_PROGRAM=/snap/clion/310/bin/ninja/linux/x64/ninja -G Ninja -S /home/tymek/PW/Zadanie2/tz459638 -B /home/tymek/PW/Zadanie2/tz459638/cmake-build-release
+-- Configuring done (0.0s)
+-- Generating done (0.0s)
+-- Build files have been written to: /home/tymek/PW/Zadanie2/tz459638/cmake-build-release

@@ -1,0 +1,15 @@
+/home/tymek/PW/Zadanie2/tz459638/cmake-build-default/CMakeFiles/edit_cache.dir
+/home/tymek/PW/Zadanie2/tz459638/cmake-build-default/CMakeFiles/rebuild_cache.dir
+/home/tymek/PW/Zadanie2/tz459638/cmake-build-default/common/CMakeFiles/err.dir
+/home/tymek/PW/Zadanie2/tz459638/cmake-build-default/common/CMakeFiles/io.dir
+/home/tymek/PW/Zadanie2/tz459638/cmake-build-default/common/CMakeFiles/edit_cache.dir
+/home/tymek/PW/Zadanie2/tz459638/cmake-build-default/common/CMakeFiles/rebuild_cache.dir
+/home/tymek/PW/Zadanie2/tz459638/cmake-build-default/reference/CMakeFiles/reference.dir
+/home/tymek/PW/Zadanie2/tz459638/cmake-build-default/reference/CMakeFiles/edit_cache.dir
+/home/tymek/PW/Zadanie2/tz459638/cmake-build-default/reference/CMakeFiles/rebuild_cache.dir
+/home/tymek/PW/Zadanie2/tz459638/cmake-build-default/nonrecursive/CMakeFiles/nonrecursive.dir
+/home/tymek/PW/Zadanie2/tz459638/cmake-build-default/nonrecursive/CMakeFiles/edit_cache.dir
+/home/tymek/PW/Zadanie2/tz459638/cmake-build-default/nonrecursive/CMakeFiles/rebuild_cache.dir
+/home/tymek/PW/Zadanie2/tz459638/cmake-build-default/parallel/CMakeFiles/parallel.dir
+/home/tymek/PW/Zadanie2/tz459638/cmake-build-default/parallel/CMakeFiles/edit_cache.dir
+/home/tymek/PW/Zadanie2/tz459638/cmake-build-default/parallel/CMakeFiles/rebuild_cache.dir
