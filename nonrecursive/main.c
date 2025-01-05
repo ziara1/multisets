@@ -5,7 +5,6 @@
 typedef struct {
     Sumset *a, *b;
     size_t indexA, indexB;
-    size_t onStack;
     bool c1, c2, c3, first;
 } StackFrame;
 
@@ -21,10 +20,6 @@ void solve_iterative(InputData* input_data, Solution* best_solution) {
         .b = &sumsetStack[1],
         .indexA = input_data->a_start.last,
         .indexB = input_data->b_start.last,
-        .onStack = 2,
-        .c1 = false,
-        .c2 = false,
-        .c3 = false,
         .first = true
     };
 
@@ -41,7 +36,7 @@ void solve_iterative(InputData* input_data, Solution* best_solution) {
 
         if (stack[s].indexA > input_data->d) {
             --stack_size;
-            sumsetStack_size -= stack[s].onStack;
+            --sumsetStack_size;
             continue;
         }
         if (stack[s].first) {
@@ -61,10 +56,6 @@ void solve_iterative(InputData* input_data, Solution* best_solution) {
                     .b = stack[s].b,
                     .indexA = i,
                     .indexB = stack[s].indexB,
-                    .onStack = 1,
-                    .c1 = false,
-                    .c2 = false,
-                    .c3 = false,
                     .first = true
                 };
             }
