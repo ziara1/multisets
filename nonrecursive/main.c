@@ -6,7 +6,7 @@ typedef struct {
     Sumset *a, *b;
     size_t indexA, indexB;
     size_t onStack;
-    bool trivial, elif;
+    bool c1, c2, c3, first;
 } StackFrame;
 
 void solve_iterative(InputData* input_data, Solution* best_solution) {
@@ -22,8 +22,10 @@ void solve_iterative(InputData* input_data, Solution* best_solution) {
         .indexA = input_data->a_start.last,
         .indexB = input_data->b_start.last,
         .onStack = 2,
-        .trivial = false,
-        .elif = false
+        .c1 = false,
+        .c2 = false,
+        .c3 = false,
+        .first = true
     };
 
     while (stack_size > 0) {
@@ -42,8 +44,15 @@ void solve_iterative(InputData* input_data, Solution* best_solution) {
             sumsetStack_size -= stack[s].onStack;
             continue;
         }
-        if (stack[s].trivial || is_sumset_intersection_trivial(stack[s].a, stack[s].b)) {
-            stack[s].trivial = true;
+        if (stack[s].first) {
+            stack[s].first = false;
+            stack[s].c1 = is_sumset_intersection_trivial(stack[s].a, stack[s].b);
+            if (!stack[s].c1) {
+                stack[s].c2 = ((stack[s].a->sum == stack[s].b->sum) && (get_sumset_intersection_size(stack[s].a, stack[s].b) == 2));
+                stack[s].c3 = stack[s].b->sum > best_solution->sum;
+            }
+        }
+        if (stack[s].c1) {
             const size_t i = stack[s].indexA;
             if (!does_sumset_contain(stack[s].b, i)) {
                 sumset_add(&sumsetStack[sumsetStack_size++], stack[s].a, i);
@@ -53,13 +62,14 @@ void solve_iterative(InputData* input_data, Solution* best_solution) {
                     .indexA = i,
                     .indexB = stack[s].indexB,
                     .onStack = 1,
-                    .trivial = false,
-                    .elif = false
+                    .c1 = false,
+                    .c2 = false,
+                    .c3 = false,
+                    .first = true
                 };
             }
-        } else if (stack[s].elif || ((stack[s].a->sum == stack[s].b->sum) && (get_sumset_intersection_size(stack[s].a, stack[s].b) == 2))) {
-            stack[s].elif = true;
-            if (stack[s].b->sum > best_solution->sum) {
+        } else if (stack[s].c2) {
+            if (stack[s].c3) {
                 solution_build(best_solution, input_data, stack[s].a, stack[s].b);
             }
         }
