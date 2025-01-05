@@ -5,20 +5,23 @@
 typedef struct {
     Sumset *a, *b;
     size_t indexA, indexB;
-    Sumset sumsetA, sumsetB;
+    size_t onStack;
 } StackFrame;
 
 void solve_iterative(InputData* input_data, Solution* best_solution) {
     size_t stack_size = 0;
+    size_t sumsetStack_size = 2;
     StackFrame stack[512];
+    Sumset sumsetStack[512];
+    sumsetStack[0] = input_data->a_start;
+    sumsetStack[1] = input_data->b_start;
     stack[stack_size++] = (StackFrame){
-        .sumsetA = input_data->a_start,
-        .sumsetB = input_data->b_start,
+        .a = &sumsetStack[0],
+        .b = &sumsetStack[1],
         .indexA = input_data->a_start.last,
-        .indexB = input_data->b_start.last
+        .indexB = input_data->b_start.last,
+        .onStack = 2,
     };
-    stack[0].a = &stack[0].sumsetA;
-    stack[0].b = &stack[0].sumsetB;
 
     while (stack_size > 0) {
         const size_t s = stack_size - 1;
@@ -33,18 +36,20 @@ void solve_iterative(InputData* input_data, Solution* best_solution) {
 
         if (stack[s].indexA > input_data->d) {
             --stack_size;
+            sumsetStack_size -= stack[s].onStack;
             continue;
         }
         if (is_sumset_intersection_trivial(stack[s].a, stack[s].b)) {
             const size_t i = stack[s].indexA;
             if (!does_sumset_contain(stack[s].b, i)) {
+                sumset_add(&sumsetStack[sumsetStack_size++], stack[s].a, i);
                 stack[stack_size++] = (StackFrame){
+                    .a = &sumsetStack[sumsetStack_size - 1],
                     .b = stack[s].b,
                     .indexA = i,
-                    .indexB = stack[s].indexB
+                    .indexB = stack[s].indexB,
+                    .onStack = 1,
                 };
-                sumset_add(&stack[stack_size - 1].sumsetA, stack[s].a, i);
-                stack[stack_size - 1].a = &stack[stack_size - 1].sumsetA;
             }
         } else if ((stack[s].a->sum == stack[s].b->sum) &&
                    (get_sumset_intersection_size(stack[s].a, stack[s].b) == 2)) {
@@ -69,6 +74,4 @@ int main()
 
     return 0;
 }
-
-
 
