@@ -1,16 +1,17 @@
 #include <stddef.h>
+#include <stdio.h>
+
 #include "common/io.h"
 #include "common/sumset.h"
-
+// mozna wyjebac sumset stack size ooglnie bo jest zawsze size+1 zwykly. mozna sprawdzac czy trxzbea zamienic przy dodwaaniu na stos
+// kom czemu taki rozmiar stosu
 typedef struct {
     Sumset *a, *b;
-    size_t indexA, indexB;
-    bool c1, c2, c3, first;
+    bool first;
 } StackFrame;
 
 void solve_iterative(InputData* input_data, Solution* best_solution) {
     size_t stack_size = 0;
-    size_t sumsetStack_size = 2;
     StackFrame stack[512];
     Sumset sumsetStack[512];
     sumsetStack[0] = input_data->a_start;
@@ -18,53 +19,36 @@ void solve_iterative(InputData* input_data, Solution* best_solution) {
     stack[stack_size++] = (StackFrame){
         .a = &sumsetStack[0],
         .b = &sumsetStack[1],
-        .indexA = input_data->a_start.last,
-        .indexB = input_data->b_start.last,
         .first = true
     };
-
     while (stack_size > 0) {
+
         const size_t s = stack_size - 1;
+        if (!stack[s].first) {
+            --stack_size;
+            continue;
+        }
+        stack[s].first = false;
+
         if (stack[s].a->sum > stack[s].b->sum) {
             Sumset* temp = stack[s].a;
             stack[s].a = stack[s].b;
             stack[s].b = temp;
-            size_t temp_index = stack[s].indexA;
-            stack[s].indexA = stack[s].indexB;
-            stack[s].indexB = temp_index;
         }
 
-        if (stack[s].indexA > input_data->d) {
-            --stack_size;
-            --sumsetStack_size;
-            continue;
-        }
-        if (stack[s].first) {
-            stack[s].first = false;
-            stack[s].c1 = is_sumset_intersection_trivial(stack[s].a, stack[s].b);
-            if (!stack[s].c1) {
-                stack[s].c2 = ((stack[s].a->sum == stack[s].b->sum) && (get_sumset_intersection_size(stack[s].a, stack[s].b) == 2));
-                stack[s].c3 = stack[s].b->sum > best_solution->sum;
+        if (is_sumset_intersection_trivial(stack[s].a, stack[s].b)) {
+            for (size_t i = stack[s].a->last; i <= input_data->d; ++i) {
+                if (!does_sumset_contain(stack[s].b, i)) {
+                    sumset_add(&sumsetStack[stack_size + 1], stack[s].a, i);
+                    stack[stack_size++] = (StackFrame){
+                        .a = &sumsetStack[stack_size],
+                        .b = stack[s].b,
+                        .first = true
+                    };
+                }
             }
-        }
-        if (stack[s].c1) {
-            const size_t i = stack[s].indexA;
-            if (!does_sumset_contain(stack[s].b, i)) {
-                sumset_add(&sumsetStack[sumsetStack_size++], stack[s].a, i);
-                stack[stack_size++] = (StackFrame){
-                    .a = &sumsetStack[sumsetStack_size - 1],
-                    .b = stack[s].b,
-                    .indexA = i,
-                    .indexB = stack[s].indexB,
-                    .first = true
-                };
-            }
-        } else if (stack[s].c2) {
-            if (stack[s].c3) {
+        } else if ((stack[s].a->sum == stack[s].b->sum) && (get_sumset_intersection_size(stack[s].a, stack[s].b) == 2) && stack[s].b->sum > best_solution->sum)
                 solution_build(best_solution, input_data, stack[s].a, stack[s].b);
-            }
-        }
-        stack[s].indexA++;
     }
 }
 
@@ -78,3 +62,4 @@ int main()
     solution_print(&best_solution);
     return 0;
 }
+
