@@ -50,19 +50,20 @@ static void solve(const Sumset* a, const Sumset* b, SharedData* shared_data)
 
 static void initialize(const Sumset* a, const Sumset* b, SharedData* shared_data, size_t level)
 {
-    level++;
     if (a->sum > b->sum)
         return initialize(b, a, shared_data, level);
+    level++;
 
     if (is_sumset_intersection_trivial(a, b)) { // s(a) ∩ s(b) = {0}.
         for (size_t i = a->last; i <= shared_data->input_data->d; ++i) {
             if (!does_sumset_contain(b, i)) {
-                sumset_add(&shared_data->sumsets[shared_data->stack_size++], a, i);
-                if (level == 1)
+                if (level == 1) {
+                    sumset_add(&shared_data->sumsets[shared_data->stack_size++], a, i);
                     initialize(&shared_data->sumsets[shared_data->stack_size - 1], b, shared_data, level);
+                }
                 else {
                     shared_data->tasks[shared_data->task_count++] = (Task){
-                        .a = &shared_data->sumsets[shared_data->stack_size - 1],
+                        .a = a,
                         .b = b,
                         .index = i
                     };
@@ -79,7 +80,6 @@ static void initialize(const Sumset* a, const Sumset* b, SharedData* shared_data
 void* task_initializer(void* arg) {
     SharedData* shared_data = (SharedData*)arg;
     initialize(&shared_data->input_data->a_start, &shared_data->input_data->b_start, shared_data, 0);
-    // shared_data->task_count = shared_data->input_data->d;
 
     pthread_mutex_lock(&shared_data->init_mutex);
     shared_data->init_done = 1;
@@ -91,7 +91,13 @@ void* task_initializer(void* arg) {
         if (task_index >= shared_data->task_count) break;
 
         Task* task = &shared_data->tasks[task_index];
-        if (is_sumset_intersection_trivial(task->a, task->b) && !does_sumset_contain(task->b, task->index)){
+        if (task->a->sum > task->b->sum) {
+            const Sumset* temp = task->a;
+            task->a = task->b;
+            task->b = temp;
+        }
+
+        if (is_sumset_intersection_trivial(task->a, task->b) && !does_sumset_contain(task->b, task->index)){ // nwm czy potrzebne
             Sumset a_with_i;
             sumset_add(&a_with_i, task->a, task->index);
             solve(&a_with_i, task->b, shared_data);
@@ -109,6 +115,12 @@ void* parallel_solver(void* arg) {
         if (task_index >= shared_data->task_count) break;
 
         Task* task = &shared_data->tasks[task_index];
+        if (task->a->sum > task->b->sum) {
+            const Sumset* temp = task->a;
+            task->a = task->b;
+            task->b = temp;
+        }
+
         if (is_sumset_intersection_trivial(task->a, task->b) && !does_sumset_contain(task->b, task->index)){
             Sumset a_with_i;
             sumset_add(&a_with_i, task->a, task->index);
@@ -145,7 +157,6 @@ int main() {
         pthread_cond_wait(&shared_data.init_cond, &shared_data.init_mutex);
     }
     pthread_mutex_unlock(&shared_data.init_mutex);
-
     for (int i = 1; i < input_data.t; ++i) {
         pthread_create(&threads[i], NULL, parallel_solver, &shared_data);
     }
