@@ -13,7 +13,7 @@ typedef struct {
 } Task;
 
 typedef struct {
-    Task tasks[2500];
+    Task tasks[12500];
     Sumset sumsets[2550];
     size_t stack_size;
     size_t task_count;
@@ -57,7 +57,7 @@ static void initialize(const Sumset* a, const Sumset* b, SharedData* shared_data
     if (is_sumset_intersection_trivial(a, b)) { // s(a) ∩ s(b) = {0}.
         for (size_t i = a->last; i <= shared_data->input_data->d; ++i) {
             if (!does_sumset_contain(b, i)) {
-                if (level == 1) {
+                if (level <= 2) {
                     sumset_add(&shared_data->sumsets[shared_data->stack_size++], a, i);
                     initialize(&shared_data->sumsets[shared_data->stack_size - 1], b, shared_data, level);
                 }
@@ -166,4 +166,3 @@ int main() {
     solution_print(&best_solution);
     return 0;
 }
-
