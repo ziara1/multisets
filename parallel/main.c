@@ -11,7 +11,7 @@ typedef struct {
     size_t index;
 } Task;
 
-Task tasks[125000];
+Task* tasks = NULL;
 Sumset sumsets[2550];
 size_t stack_size = 0;
 size_t task_count = 0;
@@ -97,6 +97,7 @@ void* parallel_solver(void* arg) {
 int main() {
     input_data_read(&input_data);
     solution_init(&best_solution);
+    tasks = (Task*)malloc(input_data.d * input_data.d * input_data.d * sizeof(Task));
 
     initialize(&input_data.a_start, &input_data.b_start, 0);
 
@@ -129,5 +130,7 @@ int main() {
     }
 
     solution_print(&best_solution);
+    free(tasks);
     return 0;
 }
+
