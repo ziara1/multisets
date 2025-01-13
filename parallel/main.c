@@ -16,7 +16,6 @@ Sumset* sumsets = NULL;
 size_t stack_size = 0;
 size_t task_count = 0;
 _Atomic size_t next_task_index = 0;
-pthread_mutex_t best_solution_mutex = PTHREAD_MUTEX_INITIALIZER;
 InputData input_data;
 Solution* best_solution = NULL;
 
@@ -40,6 +39,7 @@ static void solve(const Sumset* a, const Sumset* b, int thread_num)
     }
 }
 
+// Na początku programu dodaje trzy pierwsze poziomy rekurencji do tablicy zadań
 static void initialize(const Sumset* a, const Sumset* b, size_t level)
 {
 
@@ -84,7 +84,7 @@ void* parallel_solver(void* arg) {
             task->b = temp;
         }
 
-        if (is_sumset_intersection_trivial(task->a, task->b) && !does_sumset_contain(task->b, task->index)){ // nwm czy potrzebne
+        if (is_sumset_intersection_trivial(task->a, task->b) && !does_sumset_contain(task->b, task->index)){
             Sumset a_with_i;
             sumset_add(&a_with_i, task->a, task->index);
             solve(&a_with_i, task->b, thread_num);
@@ -144,5 +144,4 @@ int main() {
     free(best_solution);
     return 0;
 }
-
 
