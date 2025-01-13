@@ -1,21 +1,20 @@
 #include <stddef.h>
-#include <stdio.h>
 
 #include "common/io.h"
 #include "common/sumset.h"
-// mozna wyjebac sumset stack size ooglnie bo jest zawsze size+1 zwykly. mozna sprawdzac czy trxzbea zamienic przy dodwaaniu na stos
-// kom czemu taki rozmiar stosu
 typedef struct {
     Sumset *a, *b;
-    bool first;
+    bool first;     // Flaga wskazująca, czy jest to pierwszy raz przetwarzania tej ramki
 } StackFrame;
 
 void solve_iterative(InputData* input_data, Solution* best_solution) {
     size_t stack_size = 0;
-    StackFrame stack[512];
-    Sumset sumsetStack[512];
+    // Rozmiar stosu 1024 został empirycznie sprawdzony i jest wystarczający dla danych wejściowych.
+    StackFrame stack[1024];
+    Sumset sumsetStack[1024];
     sumsetStack[0] = input_data->a_start;
     sumsetStack[1] = input_data->b_start;
+    const size_t d = input_data->d;
     stack[stack_size++] = (StackFrame){
         .a = &sumsetStack[0],
         .b = &sumsetStack[1],
@@ -23,7 +22,8 @@ void solve_iterative(InputData* input_data, Solution* best_solution) {
     };
     while (stack_size > 0) {
 
-        const size_t s = stack_size - 1;
+        const size_t s = stack_size - 1;    // Indeks ostatniej ramki na stosie
+        // Jeśli ramka została już przetworzona, usuń ją ze stosu
         if (!stack[s].first) {
             --stack_size;
             continue;
@@ -37,7 +37,7 @@ void solve_iterative(InputData* input_data, Solution* best_solution) {
         }
 
         if (is_sumset_intersection_trivial(stack[s].a, stack[s].b)) {
-            for (size_t i = stack[s].a->last; i <= input_data->d; ++i) {
+            for (size_t i = stack[s].a->last; i <= d; ++i) {
                 if (!does_sumset_contain(stack[s].b, i)) {
                     sumset_add(&sumsetStack[stack_size + 1], stack[s].a, i);
                     stack[stack_size++] = (StackFrame){
@@ -62,4 +62,3 @@ int main()
     solution_print(&best_solution);
     return 0;
 }
-
